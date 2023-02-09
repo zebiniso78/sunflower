@@ -43,18 +43,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -301,7 +304,7 @@ private fun PlantImage(
     imageUrl: String,
     imageHeight: Dp,
     modifier: Modifier = Modifier,
-    placeholderColor: Color = MaterialTheme.colors.onSurface.copy(0.2f)
+    placeholderColor: Color = MaterialTheme.colorScheme.onSurface.copy(0.2f)
 ) {
     var isLoading by remember { mutableStateOf(true) }
     Box(
@@ -399,6 +402,7 @@ private fun PlantToolbar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlantDetailsToolbar(
     plantName: String,
@@ -406,29 +410,23 @@ private fun PlantDetailsToolbar(
     onShareClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface {
-        TopAppBar(
-            modifier = modifier.statusBarsPadding(),
-            backgroundColor = MaterialTheme.colors.surface
-        ) {
-            IconButton(
-                onBackClick,
-                Modifier.align(Alignment.CenterVertically)
-            ) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = plantName,
+                style = MaterialTheme.typography.headlineSmall,
+            )
+        },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(onBackClick) {
                 Icon(
                     Icons.Filled.ArrowBack,
                     contentDescription = stringResource(id = R.string.a11y_back)
                 )
             }
-            Text(
-                text = plantName,
-                style = MaterialTheme.typography.h6,
-                // As title in TopAppBar has extra inset on the left, need to do this: b/158829169
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize()
-                    .wrapContentSize(Alignment.Center)
-            )
+        },
+        actions = {
             val shareContentDescription =
                 stringResource(R.string.menu_item_share_plant)
             IconButton(
@@ -444,7 +442,7 @@ private fun PlantDetailsToolbar(
                 )
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -466,7 +464,7 @@ private fun PlantHeaderActions(
                 maxHeight = Dimens.ToolbarIconSize
             )
             .background(
-                color = MaterialTheme.colors.surface,
+                color = MaterialTheme.colorScheme.surface,
                 shape = CircleShape
             )
 
@@ -516,7 +514,7 @@ private fun PlantInformation(
     Column(modifier = modifier.padding(Dimens.PaddingLarge)) {
         Text(
             text = name,
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier
                 .padding(
                     start = Dimens.PaddingSmall,
@@ -539,7 +537,7 @@ private fun PlantInformation(
             Column(Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(id = R.string.watering_needs_prefix),
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(horizontal = Dimens.PaddingSmall)

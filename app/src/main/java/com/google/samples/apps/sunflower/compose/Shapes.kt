@@ -18,10 +18,10 @@ package com.google.samples.apps.sunflower.compose
 
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Shapes
+import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-val Shapes.card: CornerBasedShape
+val Shapes.sunflowerCard: CornerBasedShape
     get() = RoundedCornerShape(
         topStart = 0.dp,
         topEnd = 12.dp,
