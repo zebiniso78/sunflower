@@ -18,44 +18,41 @@ package com.google.samples.apps.sunflower.compose.home
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidViewBinding
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.themeadapter.material.MdcTheme
 import com.google.samples.apps.sunflower.R
 import com.google.samples.apps.sunflower.compose.garden.GardenScreen
 import com.google.samples.apps.sunflower.compose.plantlist.PlantListScreen
 import com.google.samples.apps.sunflower.data.Plant
-import com.google.samples.apps.sunflower.databinding.HomeScreenBinding
+import com.google.samples.apps.sunflower.viewmodels.PlantListViewModel
 import kotlinx.coroutines.launch
 
 enum class SunflowerPage(
@@ -66,38 +63,40 @@ enum class SunflowerPage(
     PLANT_LIST(R.string.plant_list_title, R.drawable.ic_plant_list_active)
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onPlantClick: (Plant) -> Unit = {},
-    onPageChange: (SunflowerPage) -> Unit = {},
-    onAttached: (Toolbar) -> Unit = {},
+    viewModel: PlantListViewModel = hiltViewModel()
 ) {
-    val activity = (LocalContext.current as AppCompatActivity)
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val pagerState = rememberPagerState()
 
-    AndroidViewBinding(factory = HomeScreenBinding::inflate, modifier = modifier) {
-        onAttached(toolbar)
-        activity.setSupportActionBar(toolbar)
-        composeView.setContent {
-            HomePagerScreen(onPlantClick = onPlantClick, onPageChange = onPageChange)
+    Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            HomeTopAppBar(pagerState, scrollBehavior, onFilterClick = {
+                viewModel.updateData()
+            })
         }
+    ) { contentPadding ->
+        HomePagerScreen(
+            pagerState = pagerState,
+            onPlantClick = onPlantClick,
+            modifier = Modifier.padding(contentPadding),
+        )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomePagerScreen(
+    pagerState: PagerState,
     onPlantClick: (Plant) -> Unit,
-    onPageChange: (SunflowerPage) -> Unit,
     modifier: Modifier = Modifier,
     pages: Array<SunflowerPage> = SunflowerPage.values()
 ) {
-    val pagerState = rememberPagerState()
-
-    LaunchedEffect(pagerState.currentPage) {
-        onPageChange(pages[pagerState.currentPage])
-    }
-
     // Use Modifier.nestedScroll + rememberNestedScrollInteropConnection() here so that this
     // composable participates in the nested scroll hierarchy so that HomeScreen can be used in
     // use cases like a collapsing toolbar
@@ -158,19 +157,13 @@ fun HomePagerScreen(
 @Composable
 private fun HomeTopAppBar(
     pagerState: PagerState,
+    scrollBehavior: TopAppBarScrollBehavior?,
     onFilterClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TopAppBar(
+    CenterAlignedTopAppBar(
         title = {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = stringResource(id = R.string.app_name)
-                )
-            }
+            Text(text = stringResource(id = R.string.app_name))
         },
         modifier.statusBarsPadding(),
         actions = {
@@ -181,18 +174,20 @@ private fun HomeTopAppBar(
                         contentDescription = stringResource(
                             id = R.string.menu_filter_by_grow_zone
                         ),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
-        }
+        },
+        scrollBehavior = scrollBehavior
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 private fun HomeScreenPreview() {
     MdcTheme {
-        HomePagerScreen(onPlantClick = {}, onPageChange = {})
+        HomePagerScreen(pagerState = rememberPagerState(), onPlantClick = {})
     }
 }
