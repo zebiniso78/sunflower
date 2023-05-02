@@ -47,7 +47,10 @@ class PlantListFragment : Fragment() {
         // FIXME move menu options
         setHasOptionsMenu(true)
         return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            //setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnLifecycleDestroyed(
+                this@PlantListFragment.lifecycle
+            ))
             setContent {
                 MdcTheme {
                     PlantListScreen {
