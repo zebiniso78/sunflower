@@ -131,6 +131,9 @@ dependencies {
   implementation(libs.hilt.navigation.compose)
   implementation(libs.androidx.profileinstaller)
   implementation(libs.androidx.tracing.ktx)
+//  implementation(com.google.mlkit:translate:16.2.2)
+//  implementation(com.google.mlkit:translate:16.2.2)
+
 
   // Compose
   implementation(platform(libs.androidx.compose.bom))
